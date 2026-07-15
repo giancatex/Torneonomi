@@ -1,0 +1,290 @@
+[
+  {
+    "matchId": "R0-M1",
+    "p1Id": "M0035",
+    "p2Id": "M0010",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R0-M2",
+    "p1Id": "M0001",
+    "p2Id": "M0020",
+    "p1Vote": "B",
+    "p2Vote": "A",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R0-M3",
+    "p1Id": "M0026",
+    "p2Id": "M0056",
+    "p1Vote": "D",
+    "p2Vote": "A",
+    "p1Points": 2.25,
+    "p2Points": 0.75
+  },
+  {
+    "matchId": "R0-M4",
+    "p1Id": "M0032",
+    "p2Id": "M0028",
+    "p1Vote": "B",
+    "p2Vote": "D",
+    "p1Points": 0.75,
+    "p2Points": 2.25
+  },
+  {
+    "matchId": "R1-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0010",
+    "p1Vote": "A",
+    "p2Vote": "B",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R1-M2",
+    "p1Id": "M0035",
+    "p2Id": "M0056",
+    "p1Vote": "A",
+    "p2Vote": "D",
+    "p1Points": 2.25,
+    "p2Points": 0.75
+  },
+  {
+    "matchId": "R1-M3",
+    "p1Id": "M0001",
+    "p2Id": "M0028",
+    "p1Vote": "A",
+    "p2Vote": "B",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R1-M4",
+    "p1Id": "M0026",
+    "p2Id": "M0032",
+    "p1Vote": "A",
+    "p2Vote": "B",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R2-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0020",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R2-M1",
+    "p1Id": "M0010",
+    "p2Id": "M0056",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R2-M3",
+    "p1Id": "M0035",
+    "p2Id": "M0032",
+    "p1Vote": "B",
+    "p2Vote": "A",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R2-M4",
+    "p1Id": "M0001",
+    "p2Id": "M0026",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R3-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0056",
+    "p1Vote": "B",
+    "p2Vote": "A",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R3-M1",
+    "p1Id": "M0020",
+    "p2Id": "M0028",
+    "p1Vote": "D",
+    "p2Vote": "B",
+    "p1Points": 0.75,
+    "p2Points": 2.25
+  },
+  {
+    "matchId": "R3-M2",
+    "p1Id": "M0010",
+    "p2Id": "M0032",
+    "p1Vote": "A",
+    "p2Vote": "D",
+    "p1Points": 2.25,
+    "p2Points": 0.75
+  },
+  {
+    "matchId": "R3-M4",
+    "p1Id": "M0035",
+    "p2Id": "M0001",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R4-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0028",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R4-M1",
+    "p1Id": "M0056",
+    "p2Id": "M0032",
+    "p1Vote": "D",
+    "p2Vote": "A",
+    "p1Points": 2.25,
+    "p2Points": 0.75
+  },
+  {
+    "matchId": "R4-M2",
+    "p1Id": "M0020",
+    "p2Id": "M0026",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R4-M3",
+    "p1Id": "M0010",
+    "p2Id": "M0001",
+    "p1Vote": "B",
+    "p2Vote": "B",
+    "p1Points": 0,
+    "p2Points": 3
+  },
+  {
+    "matchId": "R5-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0032",
+    "p1Vote": "A",
+    "p2Vote": "B",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R5-M1",
+    "p1Id": "M0028",
+    "p2Id": "M0026",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R5-M2",
+    "p1Id": "M0056",
+    "p2Id": "M0001",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R5-M3",
+    "p1Id": "M0020",
+    "p2Id": "M0035",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R6-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0026",
+    "p1Vote": "A",
+    "p2Vote": "A",
+    "p1Points": 3,
+    "p2Points": 0
+  },
+  {
+    "matchId": "R6-M1",
+    "p1Id": "M0032",
+    "p2Id": "M0001",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R6-M2",
+    "p1Id": "M0028",
+    "p2Id": "M0035",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R6-M4",
+    "p1Id": "M0020",
+    "p2Id": "M0010",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R7-M0",
+    "p1Id": "M0038",
+    "p2Id": "M0001",
+    "p1Vote": "B",
+    "p2Vote": "D",
+    "p1Points": 0.75,
+    "p2Points": 2.25
+  },
+  {
+    "matchId": "R7-M1",
+    "p1Id": "M0026",
+    "p2Id": "M0035",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R7-M3",
+    "p1Id": "M0028",
+    "p2Id": "M0010",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  },
+  {
+    "matchId": "R7-M4",
+    "p1Id": "M0056",
+    "p2Id": "M0020",
+    "p1Vote": "D",
+    "p2Vote": "D",
+    "p1Points": 1.5,
+    "p2Points": 1.5
+  }
+]

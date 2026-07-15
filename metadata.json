@@ -1,0 +1,8 @@
+{
+  "name": "Gestione Tornei",
+  "description": "App per la gestione e l'organizzazione dei tornei",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
