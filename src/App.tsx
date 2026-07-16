@@ -109,15 +109,11 @@ export default function App() {
         const hasLocalState = !!localStorage.getItem(`optin_block_${selectedGender}`);
         
         if (currentPhaseMeta === 1) {
-          if (!hasLocalState) {
-            const savedCount = data.filter(p => p.phase && p.phase >= 2).length;
-            localStorage.setItem(`saved_count_${selectedGender}`, savedCount.toString());
-            const unprocessed = data.filter(p => p.phase === 1);
-            setTournamentData(unprocessed);
-            setCurrentBlockMeta(0);
-          } else {
-            setTournamentData(data.filter(p => p.phase && p.phase > 0));
-          }
+          const savedCount = data.filter(p => p.phase && p.phase >= 2).length;
+          localStorage.setItem(`saved_count_${selectedGender}`, savedCount.toString());
+          const unprocessed = data.filter(p => p.phase === 1);
+          setTournamentData(unprocessed);
+          setCurrentBlockMeta(0);
         } else {
           setTournamentData(data.filter(p => p.phase && p.phase > 0));
         }

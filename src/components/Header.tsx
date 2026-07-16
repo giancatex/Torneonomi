@@ -51,7 +51,7 @@ export default function Header({ isDarkMode, toggleTheme, onHome, onBack, showBa
       
       <div className="flex items-center justify-center flex-1">
         <span className="text-xl mr-2">👶</span>
-        <h1 className="text-lg font-bold tracking-tight">Torneo Nomi</h1>
+        <h1 className="text-lg font-bold tracking-tight">Torneo Nomi <span className="text-xs font-normal text-slate-500 ml-1">v 1.1</span></h1>
       </div>
       
       <div className="flex items-center justify-end w-24 gap-1 relative">

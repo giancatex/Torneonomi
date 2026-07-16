@@ -109,11 +109,19 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
       pesi[freq] = stratificato[freq].length / dataset.length;
     });
 
-    // 3. Randomizzazione
+    // 3. Randomizzazione Deterministica
+    // Usiamo un seed basato sulla lunghezza del dataset per avere sempre lo stesso shuffle
+    // a parità di dataset (così i ricaricamenti non rimescolano i blocchi già visti)
+    let seed = dataset.length;
+    const random = () => {
+      const x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+    };
+
     const randomizza = (arr: Player[]) => {
       const m = [...arr];
       for (let i = m.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(random() * (i + 1));
         [m[i], m[j]] = [m[j], m[i]];
       }
       return m;
@@ -182,15 +190,18 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
   const currentBlock = blocks[currentBlockIndex] || [];
   const totaleBlocchi = blocks.length;
 
+  // Calcolo minimo obbligatorio
+  const nomiMancanti = Math.max(0, 250 - savedNamesCount);
+  const blocchiRimanenti = Math.max(1, totaleBlocchi - currentBlockIndex);
+  const minRequired = Math.min(currentBlock.length, Math.ceil(nomiMancanti / blocchiRimanenti));
+
   const handleCellClick = (player: Player) => {
     const isSelected = selectedIds.includes(player.id);
     
     if (isSelected) {
       setSelectedIds(prev => prev.filter(id => id !== player.id));
     } else {
-      if (selectedIds.length < 10) {
-        setSelectedIds(prev => [...prev, player.id]);
-      }
+      setSelectedIds(prev => [...prev, player.id]);
     }
   };
 
@@ -279,7 +290,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
     }
   };
 
-  const isSelectionValid = (savedNamesCount >= 250) || (selectedIds.length >= 2);
+  const isSelectionValid = selectedIds.length >= minRequired;
   const pendingCount = pendingAccepted.length + pendingRejected.length;
 
   return (
@@ -337,17 +348,15 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
           <div className="grid grid-cols-2 gap-3">
             {currentBlock.map(player => {
               const isSelected = selectedIds.includes(player.id);
-              const isDisabled = !isSelected && selectedIds.length >= 10;
               return (
                 <button
                   key={player.id}
                   onClick={() => handleCellClick(player)}
-                  disabled={isDisabled}
                   className={`h-16 md:h-20 text-base md:text-lg font-medium text-center px-2 flex items-center justify-center rounded-lg shadow-sm transition-transform active:scale-95 border ${
                     isSelected 
                       ? 'bg-emerald-600 border-emerald-500 text-white' 
                       : (isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-800')
-                  } ${isDisabled ? (isDarkMode ? 'opacity-50' : 'opacity-60 bg-slate-100') : ''}`}
+                  }`}
                 >
                   <span className="select-none">
                     {player.name}
@@ -364,7 +373,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
           {!hasScrolledToBottom ? (
             <span className="text-amber-500">Scorri fino in fondo per vedere tutti i nomi.</span>
           ) : !isSelectionValid ? (
-            <span className="text-amber-500">Seleziona almeno 2 nomi per proseguire.</span>
+            <span className="text-amber-500">Seleziona almeno {minRequired} nomi per proseguire.</span>
           ) : (
             <span className="text-emerald-500">Pronto per procedere.</span>
           )}
@@ -401,7 +410,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
           <div className={`border rounded-2xl p-6 w-full max-w-sm ${isDarkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200 shadow-xl'}`}>
             <h3 className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-slate-100' : 'text-slate-800'}`}>Regole Fase 1</h3>
             <p className={`text-sm mb-4 leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              In questa fase ti verranno mostrati blocchi di 50 nomi. Dovrai selezionare almeno 2 nomi che ti piacciono in ogni blocco.
+              In questa fase ti verranno mostrati blocchi di 50 nomi. Dovrai selezionare un minimo di nomi (calcolato in modo dinamico) in ogni blocco.
             </p>
             <p className={`text-sm mb-4 leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
               I nomi sono stratificati e randomizzati per darti una scelta bilanciata. Per procedere al blocco successivo, devi scorrere fino in fondo.
