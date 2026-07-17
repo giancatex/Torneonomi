@@ -20,20 +20,48 @@ interface HistoryState {
 }
 
 export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode, gender, onScrollDirectionChange }: PhaseOneProps) {
+  // Controlla se il dataset corrente ha la stessa dimensione dell'ultima volta
+  // Se cambia, significa che c'è stata una sincronizzazione e i nomi già passati sono stati rimossi.
+  const isSameDataset = useMemo(() => {
+    const savedDatasetSize = localStorage.getItem(`optin_dataset_size_${gender}`);
+    return savedDatasetSize && parseInt(savedDatasetSize, 10) === dataset.length;
+  }, [dataset.length, gender]);
+
   const [currentBlockIndex, setCurrentBlockIndex] = useState(() => {
-    const saved = localStorage.getItem(`optin_block_${gender}`);
-    return saved ? parseInt(saved, 10) : resumeBlock;
+    if (isSameDataset) {
+      const saved = localStorage.getItem(`optin_block_${gender}`);
+      return saved ? parseInt(saved, 10) : resumeBlock;
+    }
+    return resumeBlock;
   });
 
   const [pendingAccepted, setPendingAccepted] = useState<string[]>(() => {
-    const saved = localStorage.getItem(`optin_accepted_${gender}`);
-    return saved ? JSON.parse(saved) : [];
+    if (isSameDataset) {
+      const saved = localStorage.getItem(`optin_accepted_${gender}`);
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
   });
 
   const [pendingRejected, setPendingRejected] = useState<string[]>(() => {
-    const saved = localStorage.getItem(`optin_rejected_${gender}`);
-    return saved ? JSON.parse(saved) : [];
+    if (isSameDataset) {
+      const saved = localStorage.getItem(`optin_rejected_${gender}`);
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
   });
+
+  useEffect(() => {
+    if (!isSameDataset) {
+      localStorage.setItem(`optin_dataset_size_${gender}`, dataset.length.toString());
+      localStorage.setItem(`optin_block_${gender}`, resumeBlock.toString());
+      localStorage.setItem(`optin_accepted_${gender}`, JSON.stringify([]));
+      localStorage.setItem(`optin_rejected_${gender}`, JSON.stringify([]));
+      setCurrentBlockIndex(resumeBlock);
+      setPendingAccepted([]);
+      setPendingRejected([]);
+    }
+  }, [isSameDataset, dataset.length, gender, resumeBlock]);
 
   const [savedNames, setSavedNames] = useState<Player[]>(() => {
     const saved = localStorage.getItem(`optin_saved_names_${gender}`);
