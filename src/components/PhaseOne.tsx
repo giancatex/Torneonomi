@@ -191,7 +191,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
   const totaleBlocchi = blocks.length;
 
   // Calcolo minimo obbligatorio
-  const nomiMancanti = Math.max(0, 250 - savedNamesCount);
+  const nomiMancanti = Math.max(0, 200 - savedNamesCount);
   const blocchiRimanenti = Math.max(1, totaleBlocchi - currentBlockIndex);
   const minRequired = Math.min(currentBlock.length, Math.ceil(nomiMancanti / blocchiRimanenti));
 
@@ -303,7 +303,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
           </button>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-sm font-medium">Salvati: {savedNamesCount} / Target: 250</div>
+          <div className="text-sm font-medium">Salvati: {savedNamesCount} / Target: 200</div>
           <button 
             onClick={() => handleSync()}
             disabled={isSyncing || pendingCount === 0}
@@ -416,7 +416,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
               I nomi sono stratificati e randomizzati per darti una scelta bilanciata. Per procedere al blocco successivo, devi scorrere fino in fondo.
             </p>
             <p className={`text-sm mb-6 leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-              L'obiettivo è salvare almeno 250 nomi complessivi, che accederanno alla Fase 2.
+              L'obiettivo è salvare almeno 200 nomi complessivi, che accederanno alla Fase 2.
             </p>
             <button onClick={() => setShowInfo(false)} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors">Chiudi</button>
           </div>
