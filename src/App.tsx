@@ -104,14 +104,14 @@ export default function App() {
       try {
         const data = await fetchDatabase(selectedGender);
         
-        // Se c'è uno stato locale, manteniamo la logica originale.
-        // Se non c'è (es. nuovo dispositivo), è meglio usare i dati puliti e ripartire da 0
-        const hasLocalState = !!localStorage.getItem(`optin_block_${selectedGender}`);
-        
         if (currentPhaseMeta === 1) {
-          const savedCount = data.filter(p => p.phase && p.phase >= 2).length;
+          const localAccepted = JSON.parse(localStorage.getItem(`optin_accepted_${selectedGender}`) || '[]');
+          const localRejected = JSON.parse(localStorage.getItem(`optin_rejected_${selectedGender}`) || '[]');
+          
+          const savedCount = data.filter(p => p.phase && p.phase >= 2).length + localAccepted.length;
           localStorage.setItem(`saved_count_${selectedGender}`, savedCount.toString());
-          const unprocessed = data.filter(p => p.phase === 1);
+          
+          const unprocessed = data.filter(p => p.phase === 1 && !localAccepted.includes(p.id) && !localRejected.includes(p.id));
           setTournamentData(unprocessed);
           setCurrentBlockMeta(0);
         } else {
