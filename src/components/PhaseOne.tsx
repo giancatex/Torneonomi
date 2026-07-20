@@ -210,6 +210,7 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
   ) => {
     setIsSyncing(true);
     try {
+      const isComplete = blockToSync >= totaleBlocchi;
       const res = await syncPhaseOneBatch(gender, acceptedToSync, rejectedToSync, blockToSync);
       if (res.success) {
         setPendingAccepted([]);
@@ -219,6 +220,8 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
         
         if (namesToComplete) {
           onComplete(namesToComplete);
+        } else if (isComplete) {
+          onComplete(savedNames);
         }
       }
     } catch (error) {
@@ -287,6 +290,12 @@ export default function PhaseOne({ dataset, resumeBlock, onComplete, isDarkMode,
 
   const isSelectionValid = selectedIds.length >= minRequired;
   const pendingCount = pendingAccepted.length + pendingRejected.length;
+
+  useEffect(() => {
+    if (dataset.length === 0 && pendingCount === 0) {
+      onComplete(savedNames);
+    }
+  }, [dataset.length, pendingCount, savedNames, onComplete]);
 
   return (
     <div className={`flex flex-col h-full w-full transition-colors relative ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>

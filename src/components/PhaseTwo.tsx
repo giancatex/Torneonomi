@@ -172,7 +172,7 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
 
   // Auto-Sync Resiliente
   useEffect(() => {
-    if (duelQueue.length >= 20 && !isSyncing) {
+    if (duelQueue.length >= 1 && !isSyncing) {
       triggerSync();
     }
   }, [duelQueue.length, isSyncing]);
@@ -239,6 +239,17 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
 
   const calculateProgress = () => {
     if (activePool.length === 0) return 0;
+    
+    const initialCount = dataset.filter(p => (p.phase || 0) >= 2).length;
+    let progressA = 0;
+    if (initialCount > 64) {
+      const targetEliminations = initialCount - 64;
+      const currentEliminations = initialCount - activePool.length;
+      progressA = (currentEliminations / targetEliminations) * 100;
+    } else {
+      progressA = 100;
+    }
+
     const sortedByElo = [...activePool].sort((a, b) => (b.elo || 1200) - (a.elo || 1200));
     const top64 = sortedByElo.slice(0, 64);
     const targetMatches = 64 * 10;
@@ -246,7 +257,11 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
     for (const p of top64) {
       currentMatches += Math.min(p.match_giocati || 0, 10);
     }
-    const percent = Math.floor((currentMatches / targetMatches) * 100);
+    const progressB = (currentMatches / targetMatches) * 100;
+
+    // Poiché la fase finisce quando *almeno una* delle due condizioni si verifica (OR),
+    // il progresso reale verso la fine è il valore più alto tra i due.
+    const percent = Math.floor(Math.max(progressA, progressB));
     return Math.min(100, Math.max(0, percent));
   };
 

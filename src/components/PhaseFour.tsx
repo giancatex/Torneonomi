@@ -216,16 +216,17 @@ export default function PhaseFour({ dataset, gender, onComplete }: PhaseFourProp
 
   const advanceMatch = async () => {
     const currentRound = calendar[currentRoundIndex];
-    if (currentMatchIndex + 1 < currentRound.matches.length) {
-      setCurrentMatchIndex(currentMatchIndex + 1);
-      setVoteState({ step: 1, p1Vote: null, p2Vote: null });
-      setLastResult(null);
-    } else {
-      setIsSyncing(true);
-      try {
-        const matchesToSave = matchMatrix.filter(m => m.roundIndex === currentRoundIndex);
-        await saveGiornataFase4(gender, currentRoundIndex, matchesToSave);
-        
+    setIsSyncing(true);
+    try {
+      if (lastResult) {
+        await saveGiornataFase4(gender, currentRoundIndex, [lastResult]);
+      }
+      
+      if (currentMatchIndex + 1 < currentRound.matches.length) {
+        setCurrentMatchIndex(currentMatchIndex + 1);
+        setVoteState({ step: 1, p1Vote: null, p2Vote: null });
+        setLastResult(null);
+      } else {
         if (currentRoundIndex + 1 < calendar.length) {
           setCurrentRoundIndex(currentRoundIndex + 1);
           setCurrentMatchIndex(0);
@@ -234,11 +235,11 @@ export default function PhaseFour({ dataset, gender, onComplete }: PhaseFourProp
         } else {
           setIsFinished(true);
         }
-      } catch (e) {
-        alert("Errore nel salvataggio. Riprova.");
-      } finally {
-        setIsSyncing(false);
       }
+    } catch (e) {
+      alert("Errore nel salvataggio. Riprova.");
+    } finally {
+      setIsSyncing(false);
     }
   };
 

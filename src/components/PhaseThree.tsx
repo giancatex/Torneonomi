@@ -118,7 +118,7 @@ export default function PhaseThree({ dataset, gender, isDarkMode, onComplete }: 
   }, [dataset, gender]);
 
   useEffect(() => {
-    if (state && state.actionQueue.length >= 5 && !isSyncing) {
+    if (state && state.actionQueue.length >= 1 && !isSyncing) {
       performSync();
     }
     if (state) {
