@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Player, fetchDatabase } from '../api';
-import { Trophy, X, Users, Swords, CloudUpload, Loader2, Settings, Info, UserMinus } from 'lucide-react';
+import { Trophy, X, Users, Swords, CloudUpload, Loader2, Settings, Info, UserMinus, RotateCcw } from 'lucide-react';
 
 interface PhaseTwoProps {
   dataset: Player[];
@@ -29,6 +29,8 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
   const [eliminatedList, setEliminatedList] = useState<Player[]>([]);
   const [showEliminated, setShowEliminated] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [lastDuel, setLastDuel] = useState<{p1: Player, p2: Player, outcome: 'A' | 'B' | 'DRAW'} | null>(null);
+  const [duelHistory, setDuelHistory] = useState<{playerA: Player, playerB: Player, outcome: 'A' | 'B' | 'DRAW'}[]>([]);
 
   useEffect(() => {
     const fetchEliminated = async () => {
@@ -181,6 +183,11 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
     if (!currentPair) return;
 
     const [playerA, playerB] = currentPair;
+
+    // Salva copia esatta dello stato precedente dei due sfidanti
+    const origA: Player = { ...playerA };
+    const origB: Player = { ...playerB };
+
     const eloA = playerA.elo || 1200;
     const eloB = playerB.elo || 1200;
     
@@ -232,9 +239,69 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
       return true;
     });
 
+    setDuelHistory(prev => [...prev, { playerA: origA, playerB: origB, outcome }]);
+    setLastDuel({ p1: origA, p2: origB, outcome });
+
     setActivePool(newPool);
     setDuelQueue(prev => [...prev, ...logs]);
     setCurrentPair(null); // will trigger pickMatch
+  };
+
+  const handleUndoLastDuel = () => {
+    if (duelHistory.length === 0) return;
+
+    const last = duelHistory[duelHistory.length - 1];
+    const newHistory = duelHistory.slice(0, -1);
+    setDuelHistory(newHistory);
+
+    const origA = last.playerA;
+    const origB = last.playerB;
+
+    // Ripristina origA e origB in activePool con ELO e match giocati originali
+    setActivePool(prevPool => {
+      let pool = [...prevPool];
+      let hasA = false;
+      let hasB = false;
+
+      pool = pool.map(p => {
+        if (p.id === origA.id) {
+          hasA = true;
+          return { ...origA };
+        }
+        if (p.id === origB.id) {
+          hasB = true;
+          return { ...origB };
+        }
+        return p;
+      });
+
+      if (!hasA) pool.push({ ...origA });
+      if (!hasB) pool.push({ ...origB });
+
+      return pool;
+    });
+
+    // Invia log di ripristino
+    const restoreLogs: DuelLog[] = [
+      { id: origA.id, elo: origA.elo || 1200, match_giocati: origA.match_giocati || 0, phase: origA.phase || 2 },
+      { id: origB.id, elo: origB.elo || 1200, match_giocati: origB.match_giocati || 0, phase: origB.phase || 2 }
+    ];
+    setDuelQueue(prev => [...prev, ...restoreLogs]);
+
+    // Imposta la coppia corrente sui due giocatori per ripetere lo scontro
+    setCurrentPair([origA, origB]);
+
+    // Aggiorna banner ultimo scontro
+    if (newHistory.length > 0) {
+      const prevDuel = newHistory[newHistory.length - 1];
+      setLastDuel({ p1: prevDuel.playerA, p2: prevDuel.playerB, outcome: prevDuel.outcome });
+    } else {
+      setLastDuel(null);
+    }
+
+    if (isFinished) {
+      setIsFinished(false);
+    }
   };
 
   const calculateProgress = () => {
@@ -418,6 +485,20 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
                   Eliminati ({combinedEliminated.length})
                 </button>
               </div>
+
+              <button 
+                onClick={() => {
+                  setShowSettings(false);
+                  handleUndoLastDuel();
+                }}
+                disabled={duelHistory.length === 0}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isDarkMode ? 'bg-amber-500/20 border-amber-500/30 text-amber-300 hover:bg-amber-500/30' : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'
+                }`}
+              >
+                <RotateCcw className="w-5 h-5" />
+                Annulla e rigioca scontro precedente
+              </button>
 
               <button 
                 onClick={() => {
