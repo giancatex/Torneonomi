@@ -79,27 +79,27 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
     const candidatesA = shuffledPool.filter(p => (p.match_giocati || 0) === minMatches);
     const playerA = candidatesA[Math.floor(Math.random() * candidatesA.length)];
 
-    // 2. Sfidante B: closest Elo con tie-break casuale tra chi ha meno match
+    // 2. Sfidante B: range di Elo, meno match giocati, poi sorte
     let playerB: Player | null = null;
-    let deltaMax = 30;
+    let deltaMax = 40;
     
-    while (!playerB && deltaMax <= 2000) { // arbitrary max to prevent infinite loop
+    while (!playerB && deltaMax <= 2000) {
       const candidates = shuffledPool.filter(p => 
         p.id !== playerA.id && 
         Math.abs((p.elo || 1200) - (playerA.elo || 1200)) <= deltaMax
       );
       
       if (candidates.length > 0) {
-        const minMatchesInCandidates = Math.min(...candidates.map(p => p.match_giocati || 0));
-        const bestCandidates = candidates.filter(p => (p.match_giocati || 0) === minMatchesInCandidates);
+        const minMatchesB = Math.min(...candidates.map(p => p.match_giocati || 0));
+        const bestCandidates = candidates.filter(p => (p.match_giocati || 0) === minMatchesB);
         playerB = bestCandidates[Math.floor(Math.random() * bestCandidates.length)];
       } else {
-        deltaMax += 20;
+        deltaMax += 40;
       }
     }
 
     if (!playerB) {
-      // Fallback if something goes wrong
+      // Fallback
       playerB = shuffledPool.find(p => p.id !== playerA.id) || shuffledPool[1];
     }
 
@@ -120,18 +120,19 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
     if (activePool.length === 0 || isFinished) return;
 
     const sortedByElo = [...activePool].sort((a, b) => (b.elo || 1200) - (a.elo || 1200));
-    const top64 = sortedByElo.slice(0, 64);
     
-    const triggerA = activePool.length === 64;
-    const triggerB = top64.length === 64 && top64.every(p => (p.match_giocati || 0) >= 10);
+    // Il requisito di fine fase è che i primi 70 in classifica abbiano almeno 10 match giocati
+    const numToCheck = Math.min(70, sortedByElo.length);
+    const topN = sortedByElo.slice(0, numToCheck);
+    const isReady = topN.length > 0 && topN.every(p => (p.match_giocati || 0) >= 10);
 
-    if (triggerA || triggerB) {
+    if (isReady) {
       setIsFinished(true);
       setCurrentPair(null);
       
       // Force Fase = 0 for remaining outside top 64
       const updates: DuelLog[] = [];
-      const finalPool = [...activePool];
+      const top64 = sortedByElo.slice(0, 64);
       
       for (let i = 64; i < sortedByElo.length; i++) {
         const p = sortedByElo[i];
@@ -307,28 +308,16 @@ export default function PhaseTwo({ dataset, gender, syncWithCloud, isDarkMode, o
   const calculateProgress = () => {
     if (activePool.length === 0) return 0;
     
-    const initialCount = dataset.filter(p => (p.phase || 0) >= 2).length;
-    let progressA = 0;
-    if (initialCount > 64) {
-      const targetEliminations = initialCount - 64;
-      const currentEliminations = initialCount - activePool.length;
-      progressA = (currentEliminations / targetEliminations) * 100;
-    } else {
-      progressA = 100;
-    }
-
     const sortedByElo = [...activePool].sort((a, b) => (b.elo || 1200) - (a.elo || 1200));
-    const top64 = sortedByElo.slice(0, 64);
-    const targetMatches = 64 * 10;
+    const numToCheck = Math.min(70, sortedByElo.length);
+    const topN = sortedByElo.slice(0, numToCheck);
+    
+    const targetMatches = numToCheck * 10;
     let currentMatches = 0;
-    for (const p of top64) {
+    for (const p of topN) {
       currentMatches += Math.min(p.match_giocati || 0, 10);
     }
-    const progressB = (currentMatches / targetMatches) * 100;
-
-    // Poiché la fase finisce quando *almeno una* delle due condizioni si verifica (OR),
-    // il progresso reale verso la fine è il valore più alto tra i due.
-    const percent = Math.floor(Math.max(progressA, progressB));
+    const percent = Math.floor((currentMatches / targetMatches) * 100);
     return Math.min(100, Math.max(0, percent));
   };
 

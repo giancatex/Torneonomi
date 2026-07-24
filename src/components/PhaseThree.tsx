@@ -35,23 +35,8 @@ interface GameState {
   parentVoteState: ParentVoteState;
 }
 
-function getBracketOrder(numPlayers: number): number[] {
-  let matches = [1, 2];
-  const rounds = Math.log2(numPlayers) - 1;
-  for (let r = 1; r <= rounds; r++) {
-    const newMatches: number[] = [];
-    const sum = Math.pow(2, r + 1) + 1;
-    for (let i = 0; i < matches.length; i++) {
-      newMatches.push(matches[i], sum - matches[i]);
-    }
-    matches = newMatches;
-  }
-  return matches;
-}
-
 function initBracket(players: Player[]): GameState {
-  // Use players that have completed Phase 2 (they should have phase >= 3 or at least we take top 64 by ELO)
-  // We will assume any player reaching Phase 3 is eligible. If they don't have phase updated, we just take top 64.
+  // Use players that have completed Phase 2
   const eligible = players.filter(p => p.phase && p.phase >= 2);
   const sorted = [...eligible].sort((a, b) => {
     const eloDiff = (b.elo || 1200) - (a.elo || 1200);
@@ -61,19 +46,17 @@ function initBracket(players: Player[]): GameState {
   
   const seeded: SeededPlayer[] = sorted.slice(0, 64).map((p, i) => ({ ...p, seed: i + 1 }));
   
-  const order = getBracketOrder(64);
   const matches: Match[] = [];
   
   // Round 1: 32 matches
+  // Il 1° contro l'ultimo, il 2° contro il penultimo, ecc.
   for (let i = 0; i < 32; i++) {
-    const s1 = order[i * 2];
-    const s2 = order[i * 2 + 1];
     matches.push({
       id: `R1-${i}`,
       round: 1,
       indexInRound: i,
-      p1: seeded.find(p => p.seed === s1) || null,
-      p2: seeded.find(p => p.seed === s2) || null,
+      p1: seeded[i] || null,
+      p2: seeded[63 - i] || null,
       winner: null
     });
   }
@@ -157,18 +140,6 @@ export default function PhaseThree({ dataset, gender, isDarkMode, onComplete }: 
         const loserId = p1.id === winnerId ? p2.id : p1.id;
         newState.actionQueue.push({ id: loserId, phase: 0 });
       }
-      
-      const nextMatchRoundOffset = match.round === 1 ? 32 : 48;
-      const nextMatchIndexOffset = Math.floor(match.indexInRound / 2);
-      const nextMatch = newState.matches[nextMatchRoundOffset + nextMatchIndexOffset];
-      const isP1 = match.indexInRound % 2 === 0;
-      
-      const winnerPlayer = p1?.id === winnerId ? p1 : (p2?.id === winnerId ? p2 : null);
-      if (isP1) {
-        nextMatch.p1 = winnerPlayer;
-      } else {
-        nextMatch.p2 = winnerPlayer;
-      }
     } else if (match.round === 3) {
       if (both) {
         if (p1) newState.actionQueue.push({ id: p1.id, phase: 4 });
@@ -186,6 +157,86 @@ export default function PhaseThree({ dataset, gender, isDarkMode, onComplete }: 
     
     newState.currentMatchIndex++;
     newState.parentVoteState = { step: 0, p1Vote: null, p2Vote: null };
+    
+    // Dynamic re-seeding at the end of Round 1
+    if (newState.currentMatchIndex === 32) {
+      const winners: SeededPlayer[] = [];
+      for (let i = 0; i < 32; i++) {
+        const m = newState.matches[i];
+        if (m.winner) {
+          const wp = m.p1?.id === m.winner ? m.p1 : (m.p2?.id === m.winner ? m.p2 : null);
+          if (wp) winners.push(wp);
+        } else if (m.p1 || m.p2) {
+          winners.push((m.p1 || m.p2)!);
+        }
+      }
+      winners.sort((a, b) => (b.elo || 1200) - (a.elo || 1200));
+      
+      const pairs: Array<[SeededPlayer, SeededPlayer | null]> = [];
+      let left = 0;
+      let right = winners.length - 1;
+      while (left <= right) {
+        if (left === right) {
+          pairs.push([winners[left], null]);
+        } else {
+          pairs.push([winners[left], winners[right]]);
+        }
+        left++;
+        right--;
+      }
+      
+      for (let i = 0; i < 16; i++) {
+        const nextMatch = newState.matches[32 + i];
+        const pair = pairs[i];
+        if (pair) {
+          nextMatch.p1 = pair[0] || null;
+          nextMatch.p2 = pair[1] || null;
+        } else {
+          nextMatch.p1 = null;
+          nextMatch.p2 = null;
+        }
+      }
+    }
+    
+    // Dynamic re-seeding at the end of Round 2
+    if (newState.currentMatchIndex === 48) {
+      const winners: SeededPlayer[] = [];
+      for (let i = 32; i < 48; i++) {
+        const m = newState.matches[i];
+        if (m.winner) {
+          const wp = m.p1?.id === m.winner ? m.p1 : (m.p2?.id === m.winner ? m.p2 : null);
+          if (wp) winners.push(wp);
+        } else if (m.p1 || m.p2) {
+          winners.push((m.p1 || m.p2)!);
+        }
+      }
+      winners.sort((a, b) => (b.elo || 1200) - (a.elo || 1200));
+      
+      const pairs: Array<[SeededPlayer, SeededPlayer | null]> = [];
+      let left = 0;
+      let right = winners.length - 1;
+      while (left <= right) {
+        if (left === right) {
+          pairs.push([winners[left], null]);
+        } else {
+          pairs.push([winners[left], winners[right]]);
+        }
+        left++;
+        right--;
+      }
+      
+      for (let i = 0; i < 8; i++) {
+        const nextMatch = newState.matches[48 + i];
+        const pair = pairs[i];
+        if (pair) {
+          nextMatch.p1 = pair[0] || null;
+          nextMatch.p2 = pair[1] || null;
+        } else {
+          nextMatch.p1 = null;
+          nextMatch.p2 = null;
+        }
+      }
+    }
     
     setHistoryStack([...historyStack, state]);
     setState(newState);
